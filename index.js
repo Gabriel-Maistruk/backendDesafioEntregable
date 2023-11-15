@@ -1,28 +1,91 @@
 class ProductManager {
-    Product = [];
-constructor() {}
-getProducts() {
-    console.log(this.Product);
-}
-addProduct(title, description, price, thumbnail, code, stock){
-    price = price || 800;
-    code = code || 2918942;
-    stock = stock || 100000;
-    let id = 0;
-    for (let i = 0; i < this.Product.length; i++) {
-        const element = this.Product[i];
-        if(element.id > id){
-            id = element.id;
+    constructor() {
+        this.products = [];
+    }
+
+    getProducts() {
+        return this.products;
+    }
+
+    addProduct({ title, description, price, thumbnail, code, stock }) {
+        const id = this.generateUniqueId();
+        const newProduct = { id, title, description, price, thumbnail, code, stock };
+        this.products.push(newProduct);
+        return newProduct;
+    }
+
+    getProductById(id) {
+        const product = this.products.find((p) => p.id === id);
+        if (!product) {
+            throw new Error('Product not found');
+        }
+        return product;
+    }
+
+    updateProduct(id, updatedFields) {
+        const index = this.products.findIndex((p) => p.id === id);
+        if (index !== -1) {
+            this.products[index] = { ...this.products[index], ...updatedFields, id };
+            return this.products[index];
+        } else {
+            throw new Error('Product not found');
         }
     }
-    id++;
 
-    this.Product.push({ id: id, title, description, price, thumbnail, code, stock })
-}
+    deleteProduct(id) {
+        const index = this.products.findIndex((p) => p.id === id);
+        if (index !== -1) {
+            const deletedProduct = this.products.splice(index, 1);
+            return deletedProduct[0];
+        } else {
+            throw new Error('Product not found');
+        }
+    }
+
+    generateUniqueId() {
+        return '_' + Math.random().toString(36).substr(2, 9);
+    }
 }
 
-const manager = new ProductManager();
-manager. addProduct('Monster', 'la mejor bebida energetica', 700, 'https://cordoba.parodisrl.com.ar/45903/energizante-monster-green-473-cc.jpg', 8938940, 100000)
-manager. addProduct('Coca-Cola', 'Bebida refrescante', 1000, 'https://static.wixstatic.com/media/d2b1c5_d858b74ff2534bdc98694e72c576fbe0~mv2_d_1600_1600_s_2.jpg/v1/fill/w_480,h_480,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/d2b1c5_d858b74ff2534bdc98694e72c576fbe0~mv2_d_1600_1600_s_2.jpg', 8238933, 100000)
-manager.getProducts();
+// Crear instancia de ProductManager
+const productManager = new ProductManager();
+
+// Obtener productos (debería devolver [])
+console.log(productManager.getProducts());
+
+// Agregar un producto
+const newProduct = productManager.addProduct({
+    title: 'producto prueba',
+    description: 'Este es un producto prueba',
+    price: 200,
+    thumbnail: 'Sin imagen',
+    code: 'abc123',
+    stock: 25,
+});
+console.log('Producto agregado:', newProduct);
+
+// Obtener productos (debería contener el producto recién agregado)
+console.log(productManager.getProducts());
+
+// Obtener producto por id
+const productId = newProduct.id;
+try {
+    const retrievedProduct = productManager.getProductById(productId);
+    console.log('Producto encontrado por ID:', retrievedProduct);
+} catch (error) {
+    console.error(error.message);
+}
+
+// Actualizar producto
+const updatedProduct = productManager.updateProduct(productId, { price: 250, stock: 30 });
+console.log('Producto actualizado:', updatedProduct);
+
+// Eliminar producto
+try {
+    const deletedProduct = productManager.deleteProduct(productId);
+    console.log('Producto eliminado:', deletedProduct);
+} catch (error) {
+    console.error(error.message);
+}
+
 
